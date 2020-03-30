@@ -1,11 +1,11 @@
 package com.example.demo.repositories;
 
 import com.example.demo.entities.BookEntity;
+import com.example.demo.services.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.persistence.EntityManager;
+import java.util.Optional;
 import javax.transaction.Transactional;
 import java.util.List;
 
@@ -14,7 +14,7 @@ import java.util.List;
 public class BookRepository {
 
     @Autowired
-    private EntityManager entityManager;
+    private BookService bookService;
 
     @Transactional
     public BookEntity createBook(String title, String author, String isbn) {
@@ -22,18 +22,22 @@ public class BookRepository {
         book.setTitle(title);
         book.setAuthor(author);
         book.setIsbn(isbn);
-        return entityManager.merge(book);
+        return bookService.saveAndFlush(book);
     }
 
     @Transactional
+    public List<BookEntity> getByTitleOrISBN(String contains) {
+        return bookService.searchByTitleOrIsbn('%' + contains + '%');
+    }
+    @Transactional
     public BookEntity getBookById(int id) {
-        return entityManager.find(BookEntity.class, id);
+        Optional<BookEntity> optionalBook = bookService.findById(id);
+        return optionalBook.orElse(null);
     }
 
     @Transactional
     public List<BookEntity> getAllBooks() {
-        return entityManager.createQuery("SELECT b FROM BookEntity b", BookEntity.class)
-                .getResultList();
+        return bookService.findAll();
     }
 
 }

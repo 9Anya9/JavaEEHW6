@@ -5,10 +5,7 @@ import com.example.demo.entities.BookEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -43,10 +40,20 @@ public class BookController {
         return "savenew";
     }
 
+
+    @RequestMapping(value = "/search-results", method = {RequestMethod.GET, RequestMethod.POST})
+    public String searchResOfTitleAndIsbn(@RequestParam String search, Model model) {
+        List<BookEntity> books = bookRepository.getByTitleOrISBN(search);
+        System.out.println(books);
+        model.addAttribute("books", books);
+        return "findTitleIsbn";
+    }
+
     @RequestMapping(value = "/save-book", method = {RequestMethod.GET, RequestMethod.POST})
     public String saveBook(@ModelAttribute BookEntity book, Model model) {
         model.addAttribute("book", book);
         bookRepository.createBook(book.getTitle(), book.getAuthor(), book.getIsbn());
         return "redirect:/";
     }
+
 }

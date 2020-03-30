@@ -5,7 +5,7 @@
     <title>Book List</title>
 </head>
 <body>
-<h2>Book List</h2>
+<h1>Book List</h1>
 <table  border="1" cellspacing="0" cellpadding="12">
     <thead>
     <th>Title</th>
@@ -20,5 +20,15 @@
 <form method="get" action="/redirsavebook">
     <input type="submit" value="Add"/>
 </form>
+<br>
+<br>
+<form method="get" action="/search-results">
+   <h2>Enter title or ISBN:</h2>
+    <input type="text" name="search">
+    <br>
+    <br>
+    <button type="submit">Find</button>
+</form>
+
 </body>
 </html>
