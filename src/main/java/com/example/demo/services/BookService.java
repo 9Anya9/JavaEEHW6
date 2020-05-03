@@ -34,7 +34,7 @@ public class BookService {
 
 
     @Transactional
-    public BookEntity addBook(String title, String author, String isbn) {
+    public BookEntity addBook(String isbn, String author, String title) {
         BookEntity book = new BookEntity();
         book.setIsbn(isbn);
         book.setAuthor(author);

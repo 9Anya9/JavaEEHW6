@@ -1,6 +1,5 @@
 package com.example.demo.entities;
 
-import com.example.demo.entities.BookEntity;
 import lombok.Getter;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,7 +15,7 @@ public class CustomEntity extends User {
     private final String customAuthField;
     private final Set<BookEntity> favBooks;
 
-    public CustomEntity(
+    public CustomEntity (
             final String username,
             final String password,
             final List<? extends GrantedAuthority> authorities,
