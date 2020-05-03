@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Fav Books</title>
+</head>
+<body>
+
+<h2>Favorites Books</h2>
+<table border="1" cellspacing="0" cellpadding="12">
+    <thead>
+    <th>ISBN</th>
+    <th>Author</th>
+    <th>Title</th>
+    </thead>
+    <tbody id="favbooktable">
+    </tbody>
+</table>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script>
+    $(document).ready(
+        function() {
+            getFavBooks();
+        });
+
+    function setUserInfo(data) {
+        let $favbooktable = $('#favbooktable');
+
+        $favbooktable.empty();
+        data.forEach(book => {
+            $favbooktable.append('<tr><td width="200" height="15">' + book.isbn + '</td><td width="200" height="15">'
+                + book.author + '</td><td width="200" height="15">' + book.title + '</td><td width="200" height="15">' +
+                '<button onClick="delBook(\'' + book.id + '\')">Delete</button></td></tr>');
+        })
+    }
+
+    function delBook(id) {
+        $.ajax({
+            type: 'DELETE',
+            url: `/fav-books/${id}`,
+            dataType: 'json',
+            success: function (response) {
+                getFavBooks(response);
+            }
+        });
+    }
+
+    function getFavBooks() {
+        $.ajax({
+            url: '/fav-books',
+            success: function (response) {
+                setUserInfo(response);
+            }
+        });
+    }
+
+
+</script>
+
+</body>
+</html>

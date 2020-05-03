@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Main</title>
+</head>
+
+<body>
+
+    <b><a href="/">Main</a></b>
+    <b><a href="/login">Sign In</a></b>
+    <span th:if="${#authorization.expression('isAnonymous()')}"><b><a href="/register">Sign Up</a></b></span>
+    <span th:if="${#authorization.expression('isFullyAuthenticated()')}"><b><a href="/profile">My account</a></b></span>
+
+
+    <h1>Book List</h1>
+
+    <table border="1" cellspacing="0" cellpadding="12">
+        <thead>
+        <th>ISBN</th>
+        <th>Author</th>
+        <th>Title</th>
+        <th th:if="${#authorization.expression('hasAuthority(''ADD_TO_FAVORITES'')')}">Add to favorites</th>
+        </thead>
+        <tbody id="booktable">
+        </tbody>
+    </table>
+
+    </br>
+
+    <form id="reloadlist">
+        <button type="submit">Reload</button>
+    </form>
+
+
+    <div th:if="${#authorization.expression('hasAuthority(''ADD_BOOK'')')}">
+        <h1>Add Book</h1>
+        <form id="addbook">
+            <input name="isbn" type="text">
+            <input name="author" type="text">
+            <input name="title" type="text">
+            <button type="submit"> + </button>
+        </form>
+    </div>
+
+
+    <h1>Search Book</h1>
+    <form id="booksearch">
+        <input name="input" type="text"><br>
+        <select name="select" placeholder="Title">
+            <option th:value="isbn">ISBN</option>
+            <option th:value="author">Author</option>
+            <option th:value="title">Title</option>
+        </select>
+        <button type="submit">Search</button>
+    </form>
+
+    <h1>Search results</h1>
+
+    <table border="1" cellspacing="0" cellpadding="12">
+        <thead>
+        <th>ISBN</th>
+        <th>Author</th>
+        <th>Title</th>
+        </thead>
+        <tbody id="booksearchtable"/>
+    </table>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script>
+        $(function () {
+
+            $('#booksearch').submit(function (e) {
+                e.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: '/booksearch',
+                    dataType: 'json',
+                    data: JSON.stringify({
+                        searchInput: $(this).find('[name=input]').val(),
+                        searchCriteria: $(this).find('[name=select]').val(),
+                    }),
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('Content-Type', 'application/json')
+                    },
+                    success: function (response) {
+                        //
+                        console.log($(this).find('[name=criteria]').val());
+                        //
+                        $('#addResponse').text('');
+                        let $books = $('#booksearchtable');
+                        $books.empty();
+                        for (let book of response.books) {
+                            $books.append(`<tr><td width="200" height="15">${book.isbn}</td><td width="200" height="15">${book.author}</td>\<td width="200" height="15">${book.title}</td></tr>`);
+                        }
+                        $("#booksearch")[0].reset();
+                    }
+                })
+            });
+
+            $('#reloadlist').submit(function (e) {
+                e.preventDefault();
+                $.ajax({
+                    type: 'GET',
+                    url: '/booklist',
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('Content-Type', 'application/json')
+                    },
+                    success: function(response) {
+                        $('#addResponse').text('');
+                        let $books = $('#booktable');
+                        $books.empty();
+                        for (let book of response.books) {
+                            $books.append('<tr><td width="200" height="15">' + book.isbn + '</td><td width="200" height="15">' + book.author + '</td><td width="200" height="15">' + book.title + '</td>' + '<td width="200" height="15" th:if="${#authorization.expression(\'hasAuthority(\'\'ADD_TO_FAVORITES\'\')\')}"><button onClick="bookToFav(\'' + book.id + '\')">Like the book</button></td></tr>');
+                        }
+                    }
+                })
+            });
+
+            $('#addbook').submit(function (e) {
+                e.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: '/addbook',
+                    dataType: 'json',
+                    data: JSON.stringify({
+                        isbn: $(this).find('[name=isbn]').val(),
+                        author: $(this).find('[name=author]').val(),
+                        title: $(this).find('[name=title]').val()
+                    }),
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('Content-Type', 'application/json')
+                    },
+                    success: function(response) {
+                        $('#addResponse').text('');
+                        let $books = $('#booktable');
+                        $books.empty();
+                        for (let book of response.books) {
+                            $books.append(`<tr><td>${book.isbn}</td><td>${book.author}</td>\<td>${book.title}</td></tr>`);
+                        }
+                        $("#addbook")[0].reset();
+                    }
+                })
+            })
+        })
+        function bookToFav(id) {
+            console.log(id);
+            $.ajax({
+                type: 'POST',
+                url: `/fav-books/${id}`,
+                dataType: 'json',
+                success: function(response) {
+                    console.log(response);
+                }
+            })
+        }
+    </script>
+
+</body>
+
+</html>

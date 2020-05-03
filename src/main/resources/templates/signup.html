@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up</title>
+</head>
+
+<body>
+<form id="signUpForm">
+    <input name="login" placeholder="Login">
+    <input name="password" type="password" placeholder="Password">
+   <br/>
+    <br/>
+    <button type="submit">Sign Up</button>
+</form>
+
+<div id="regError"></div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script>
+    $(function () {
+
+        $('#signUpForm').submit(function (e) {
+            e.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: '/register',
+                dataType: 'json',
+                data: JSON.stringify({
+                    login: $(this).find('[name=login]').val(),
+                    password: $(this).find('[name=password]').val(),
+                    customAuthField: $(this).find('[name=password]').val()
+                }),
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Content-Type', 'application/json')
+                },
+                success: function(response) {
+                    window.location.href = window.location.origin + "/";
+                },
+                error: function(xhr) {
+                    let $formError = $('#regError');
+                    $formError.empty();
+                    $formError.append('<p class="text-danger">' + JSON.stringify(xhr.responseJSON.errors[0].defaultMessage, null, 4) + '</p>');
+                    console.log(xhr);
+                }
+            })
+        })
+    })
+</script>
+</body>
+</html>

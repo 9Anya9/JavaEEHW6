@@ -10,6 +10,6 @@ import lombok.ToString;
 @ToString
 @RequiredArgsConstructor(staticName = "of")
 public class BookSearch {
-    private final String category;
-    private final String whatToSearch;
+    private final String searchCriteria;
+    private final String searchInput;
 }

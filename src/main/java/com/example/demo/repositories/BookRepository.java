@@ -1,45 +1,28 @@
 package com.example.demo.repositories;
 
 import com.example.demo.entities.BookEntity;
-import com.example.demo.services.BookInterfaceService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import java.util.Optional;
-import javax.transaction.Transactional;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import java.util.List;
 
-@Service
-@RequiredArgsConstructor
-public class BookRepository {
+public interface BookRepository extends JpaRepository<BookEntity, Integer> {
 
-    @Autowired
-    private BookInterfaceService bookInterfaceService;
+    @Query("SELECT book FROM BookEntity book " +
+            "WHERE book.isbn LIKE :contains " +
+            "OR book.title LIKE :contains")
+    List<BookEntity> searchByTitleOrIsbn(@Param("contains") String contains);
 
-    @Transactional
-    public BookEntity createBook(String title, String author, String isbn) {
-        BookEntity book = new BookEntity();
-        book.setIsbn(isbn);
-        book.setAuthor(author);
-        book.setTitle(title);
+    @Query("SELECT book FROM BookEntity book " +
+            "WHERE book.isbn LIKE :isbn ")
+    List<BookEntity> getBookByISBN(@Param("isbn") String isbn);
 
-        return bookInterfaceService.saveAndFlush(book);
-    }
+    @Query("SELECT book FROM BookEntity book " +
+            "WHERE book.author LIKE :author ")
+    List<BookEntity> getBookByAuthor(@Param("author") String author);
 
-    @Transactional
-    public List<BookEntity> getByTitleOrISBN(String contains) {
-        return bookInterfaceService.searchByTitleOrIsbn('%' + contains + '%');
-    }
-    @Transactional
-    public BookEntity getBookById(int id) {
-        Optional<BookEntity> optionalBook = bookInterfaceService.findById(id);
-        return optionalBook.orElse(null);
-    }
-
-    @Transactional
-    public List<BookEntity> getAllBooks() {
-
-        return bookInterfaceService.findAll();
-    }
-
+    @Query("SELECT book FROM BookEntity book " +
+            "WHERE book.title LIKE :title ")
+    List<BookEntity> getBookByTitle(@Param("title") String title);
 }

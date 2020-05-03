@@ -1,7 +1,7 @@
 package com.example.demo.services;
 
-
 import com.example.demo.entities.BookEntity;
+import com.example.demo.repositories.BookRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,22 +15,23 @@ import java.util.Optional;
 public class BookService {
 
     @Autowired
-    private BookInterfaceService bookInterfaceService;
+    private BookRepository bookRepository;
 
     @Transactional
     public List<BookEntity> getBookByISBN(String isbn) {
-        return bookInterfaceService.getBookByISBN('%' + isbn + '%');
-    }
-
-    @Transactional
-    public List<BookEntity> getBookByAuthor(String author) {
-        return bookInterfaceService.getBookByAuthor('%' + author + '%');
+        return bookRepository.getBookByISBN('%' + isbn + '%');
     }
 
     @Transactional
     public List<BookEntity> getBookByTitle(String title) {
-        return bookInterfaceService.getBookByTitle('%' + title + '%');
+        return bookRepository.getBookByTitle('%' + title + '%');
     }
+
+    @Transactional
+    public List<BookEntity> getBookByAuthor(String author) {
+        return bookRepository.getBookByAuthor('%' + author + '%');
+    }
+
 
     @Transactional
     public BookEntity addBook(String title, String author, String isbn) {
@@ -38,23 +39,22 @@ public class BookService {
         book.setIsbn(isbn);
         book.setAuthor(author);
         book.setTitle(title);
-        return bookInterfaceService.saveAndFlush(book);
+        return bookRepository.saveAndFlush(book);
     }
-
 
     @Transactional
     public List<BookEntity> getAllBooks() {
-        return bookInterfaceService.findAll();
+        return bookRepository.findAll();
     }
 
     @Transactional
     public List<BookEntity> getBookByTitleOrIsbn(String contains) {
-        return bookInterfaceService.searchByTitleOrIsbn('%' + contains + '%');
+        return bookRepository.searchByTitleOrIsbn('%' + contains + '%');
     }
 
     @Transactional
     public BookEntity getBookById(int id) {
-        Optional<BookEntity> optionalBook = bookInterfaceService.findById(id);
+        Optional<BookEntity> optionalBook = bookRepository.findById(id);
         return optionalBook.orElse(null);
     }
 }
